@@ -17,7 +17,7 @@ public class MaxTempReducer extends Reducer<Text, IntWritable, Text, IntWritable
 		try {
 			context.write(key, new IntWritable(maxValue));
 		} catch (IOException | InterruptedException e) {
-			//no-op
+			// no-op
 		}
 	}
 }

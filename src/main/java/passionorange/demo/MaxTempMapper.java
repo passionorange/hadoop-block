@@ -15,7 +15,7 @@ public class MaxTempMapper extends Mapper<LongWritable, Text, Text, IntWritable>
 		String year = line.substring(15, 19);
 		int airTemperature = Integer.parseInt(line.substring(87, 92));
 		try {
-			System.out.println("Processing line: "+ line + "year: "+ year + "airtemperatrue: " + airTemperature);
+			System.out.println("Processing line: " + line + "year: " + year + "airtemperatrue: " + airTemperature);
 			context.write(new Text(year), new IntWritable(airTemperature));
 		} catch (IOException | InterruptedException e) {
 			// no-op

@@ -11,8 +11,9 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
 /**
- * Execute using 
- * hadoop jar target/uber-hadoop-block-0.1.jar passionorange.demo.MaxTempDriver 'hdfs://localhost:8020//sample.txt' 'hdfs://localhost:8020//map_reduce'
+ * Execute using hadoop jar target/uber-hadoop-block-0.1.jar
+ * passionorange.demo.MaxTempDriver 'hdfs://localhost:8020//sample.txt'
+ * 'hdfs://localhost:8020//map_reduce'
  */
 public class MaxTempDriver extends Configured implements Tool {
 
