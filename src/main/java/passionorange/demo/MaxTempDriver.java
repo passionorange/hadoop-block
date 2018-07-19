@@ -19,6 +19,7 @@ public class MaxTempDriver extends Configured implements Tool {
 
 	@Override
 	public int run(String[] args) throws Exception {
+		System.out.println("Conf:" + getConf());
 		Job job = Job.getInstance(getConf(), "Max Temp Driver");
 		job.setJarByClass(getClass());
 		// FileInputFormat.setInputPath(job, "/sample.txt");
