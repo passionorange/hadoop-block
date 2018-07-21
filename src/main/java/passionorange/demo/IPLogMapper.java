@@ -1,11 +1,16 @@
 package passionorange.demo;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.nio.charset.Charset;
 import java.util.List;
 
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
+
+import com.google.common.io.Files;
 
 import passionorange.demo.LogParser.LogRecord;
 
@@ -15,28 +20,34 @@ import passionorange.demo.LogParser.LogRecord;
 public class IPLogMapper extends Mapper<LongWritable, Text, Text, LongWritable> {
 
 	LogParser lp;
-
-	static enum RecordCounters {
-		resource_index, resource_cart, resource_about, resource_other
-	};
+	List<String> counter_tokens;
 
 	@Override
 	public void setup(Mapper<LongWritable, Text, Text, LongWritable>.Context context) {
 		lp = new LogParser();
+		try {
+			URI[] cacheFiles = context.getCacheFiles();
+			if (context.getCacheFiles() != null && context.getCacheFiles().length > 0) {
+				File keys_file = new File("./keys");
+				List<String> readLines = Files.readLines(keys_file, Charset.defaultCharset());
+				System.out.println("Counter Tokens:" + readLines);
+				counter_tokens = readLines;
+			}
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void map(LongWritable key, Text value, Context context) {
 		List<LogRecord> log0 = lp.parse(value.toString());
 		try {
-			if(log0.get(0).resource.contains("index")) {
-				context.getCounter(RecordCounters.resource_index).increment(1l);
-			} else if (log0.get(0).resource.contains("cart")) {
-				context.getCounter(RecordCounters.resource_cart).increment(1l);
-			} else if(log0.get(0).resource.contains("about")) {
-				context.getCounter(RecordCounters.resource_about).increment(1l);
-			} else {
-				context.getCounter(RecordCounters.resource_other).increment(1l);
+			for (String token : counter_tokens) {
+				if (log0.get(0).resource.contains(token)) {
+					context.getCounter("passionorange", token).increment(1l);
+					break;
+				}
 			}
 			context.write(new Text(log0.get(0).ip), new LongWritable(1));
 		} catch (IOException | InterruptedException e) {

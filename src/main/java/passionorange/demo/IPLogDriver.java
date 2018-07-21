@@ -1,5 +1,6 @@
 package passionorange.demo;
 
+import java.net.URI;
 import java.util.Random;
 
 import org.apache.hadoop.conf.Configuration;
@@ -31,17 +32,20 @@ public class IPLogDriver extends Configured implements Tool {
 		Path tempDir =  new Path(args[1] + "/"+ "ip_log_output" +"-" + Integer.toString(new Random().nextInt(50)));
 		Configuration conf = getConf();
 		System.out.println("Conf:" + conf);
-		Job grepJob = Job.getInstance(getConf(), "IP Log Driver");
-		grepJob.setJarByClass(getClass());
-		FileInputFormat.setInputPaths(grepJob, args[0]);
-		FileOutputFormat.setOutputPath(grepJob, tempDir);
-		grepJob.setMapperClass(IPLogMapper.class);
+		Job ljob = Job.getInstance(getConf(), "IP Log Driver");
+		ljob.setJarByClass(getClass());
+		FileInputFormat.setInputPaths(ljob, args[0]);
+		FileOutputFormat.setOutputPath(ljob, tempDir);
+		ljob.setMapperClass(IPLogMapper.class);
 		//careful for imports
-		grepJob.setCombinerClass(LongSumReducer.class);
-		grepJob.setReducerClass(LongSumReducer.class);
-		grepJob.setOutputKeyClass(Text.class);
-		grepJob.setOutputValueClass(LongWritable.class);
-		return grepJob.waitForCompletion(true) ? 0 : 1;
+		ljob.setCombinerClass(LongSumReducer.class);
+		ljob.setReducerClass(LongSumReducer.class);
+		ljob.setOutputKeyClass(Text.class);
+		ljob.setOutputValueClass(LongWritable.class);
+		//below is equivalent to conf.set("mapreduce.job.cache.files", files == null ? uri.toString() : files + "," + uri.toString());
+		//add a cache file
+		ljob.addCacheFile(new URI("hdfs://localhost:8020/test_input/resource_types.txt#keys"));
+		return ljob.waitForCompletion(true) ? 0 : 1;
 	}
 	
 	/**
